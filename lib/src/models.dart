@@ -107,7 +107,6 @@ class Plan {
         apn = _str(raw['apn']),
         tether = _bool(raw['tether']),
         canRenew = _bool(raw['can_renew']),
-        provider = _str(raw['provider']),
         countries = _list(raw['countries']).map(PlanCountry.fromJson).toList();
 
   final Map<String, dynamic> raw;
@@ -139,7 +138,6 @@ class Plan {
   final String? apn;
   final bool? tether;
   final bool? canRenew;
-  final String? provider;
   final List<PlanCountry> countries;
 }
 
@@ -148,7 +146,6 @@ class EsimRecord {
   EsimRecord(this.raw)
       : iccid = _str(raw['iccid']),
         status = EsimStatus.parse(raw['status_qr'] ?? raw['status']),
-        providerStatus = _str(raw['provider_status_qr']),
         qrcode = _str(raw['qrcode']),
         iosTapLink = _str(raw['ios_tap_link']),
         androidTapLink = _str(raw['android_tap_link']),
@@ -170,9 +167,6 @@ class EsimRecord {
   final Map<String, dynamic> raw;
   final String? iccid;
   final EsimStatus status;
-
-  /// The network's own status wording, for display/debugging.
-  final String? providerStatus;
 
   /// LPA activation string - render it as a QR code.
   final String? qrcode;
@@ -244,7 +238,6 @@ class IssueResult {
   IssueResult(this.raw)
       : orderUuid = _str(raw['order_uuid']) ?? '',
         message = _str(raw['message']),
-        provider = _str(_map(raw['data'])['provider']),
         esims = _list(_map(_map(raw['data'])['response'])['esims']).map(EsimRecord.new).toList(),
         transaction = raw['transaction'] is Map<String, dynamic> ? Transaction(raw['transaction']) : null;
   final Map<String, dynamic> raw;
@@ -252,7 +245,6 @@ class IssueResult {
   /// Keep this - it identifies the order for `esim.getOrder()` and webhooks.
   final String orderUuid;
   final String? message;
-  final String? provider;
   final List<EsimRecord> esims;
   final Transaction? transaction;
 }
@@ -314,13 +306,11 @@ class TopupPackage {
 class TopupCheckResult {
   TopupCheckResult(this.raw)
       : iccid = _str(raw['iccid']),
-        provider = _str(raw['provider']),
         topupAvailable = _bool(raw['topup_available']) ?? false,
         message = _str(raw['message']),
         packages = _list(_map(raw['data'])['available_packages']).map(TopupPackage.new).toList();
   final Map<String, dynamic> raw;
   final String? iccid;
-  final String? provider;
   final bool topupAvailable;
 
   /// Explains why when [topupAvailable] is false.
@@ -352,4 +342,23 @@ class OrderResult {
   final String orderUuid;
   final String? status;
   final List<EsimRecord> esims;
+}
+
+/// Result of `esim.change()`: the replacement eSIM (new ICCID and QR code).
+/// The old eSIM ([replacedIccid]) stops working.
+class ChangeResult {
+  ChangeResult(this.raw)
+      : message = _str(raw['message']),
+        replacedIccid = _str(_map(raw['data'])['replaced_iccid']),
+        orderUuid = _str(_map(raw['data'])['order_uuid']),
+        esim = EsimRecord(_map(_map(raw['data'])['esim']));
+  final Map<String, dynamic> raw;
+  final String? message;
+  final String? replacedIccid;
+
+  /// `null` in testing mode.
+  final String? orderUuid;
+
+  /// The new eSIM - send its [EsimRecord.qrcode] / tap links to the customer.
+  final EsimRecord esim;
 }

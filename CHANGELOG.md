@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Added `esim.change(iccid)` - replace an eSIM with a new one (new ICCID and QR
+  code); returns `ChangeResult`. Limited to 3 replacements per account.
+- Added the `esim.replaced` webhook event (`WebhookEventTypes.esimReplaced`).
+- Breaking: removed `Plan.provider`, `EsimRecord.providerStatus`,
+  `IssueResult.provider` and `TopupCheckResult.provider` - the API no longer
+  says which network supplier fulfils a plan or an eSIM.
+
 ## 0.1.0
 
 - Initial release.

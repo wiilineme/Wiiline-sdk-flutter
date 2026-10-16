@@ -69,8 +69,8 @@ print('Charged: ${order.transaction?.amountCharged}');
 ## Flutter example
 
 ```dart
-class EsimCard extends StatelessWidget {
-  const EsimCard({super.key, required this.client, required this.iccid});
+class EsimDetails extends StatelessWidget {
+  const EsimDetails({super.key, required this.client, required this.iccid});
   final WiilineClient client;
   final String iccid;
 
@@ -137,7 +137,7 @@ try {
 }
 ```
 
-Some failures come back as HTTP 200 with `success: false` - the SDK throws for those too, so catch the exception rather than checking status codes. Errors like `Renewal not available` and `Insufficient balance` happen **before** you are charged; a provider failure after a charge is refunded automatically.
+Some failures come back as HTTP 200 with `success: false` - the SDK throws for those too, so catch the exception rather than checking status codes. Errors like `Renewal not available` and `Insufficient balance` happen **before** you are charged; a network failure after a charge is refunded automatically.
 
 ## Webhooks (Dart server)
 

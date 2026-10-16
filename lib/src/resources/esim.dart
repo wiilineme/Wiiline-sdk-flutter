@@ -39,7 +39,7 @@ class EsimResource {
   }
 
   /// Renews the eSIM onto [planId] - use a package id from [checkTopup].
-  /// Eligibility is checked before you are charged; a provider failure after
+  /// Eligibility is checked before you are charged; a network failure after
   /// the charge is refunded automatically ([RenewResult.refunded]).
   Future<RenewResult> renew({required String iccid, required String planId}) async {
     final json = await _client.request('POST', '/api/esim/renew', body: {
@@ -62,6 +62,16 @@ class EsimResource {
       'product_id': productId,
     });
     return RenewResult(json);
+  }
+
+  /// Replaces the eSIM with a new one (new ICCID and QR code) - e.g. the
+  /// customer deleted it or moved to a new device. The active plan and the
+  /// remaining data move to the new eSIM and the old one stops working.
+  /// Free, but irreversible and limited to 3 replacements per account; not
+  /// every eSIM supports it.
+  Future<ChangeResult> change(String iccid) async {
+    final json = await _client.request('POST', '/api/esim/change', body: {'iccid': iccid});
+    return ChangeResult(json);
   }
 
   /// A previous order and all its eSIMs, by the `orderUuid` from [issue].

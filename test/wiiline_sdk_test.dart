@@ -37,7 +37,6 @@ void main() {
             'success': true,
             'order_uuid': 'o1',
             'data': {
-              'provider': 'x',
               'response': {
                 'esims': [
                   {'iccid': '8985', 'status_qr': 'Released', 'qrcode': 'LPA:1\$a\$b', 'activate_before': '2026-12-12 09:43:08'}

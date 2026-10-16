@@ -77,6 +77,7 @@ abstract final class WebhookEventTypes {
   static const orderFailed = 'order.failed';
   static const renewalCompleted = 'renewal.completed';
   static const renewalFailed = 'renewal.failed';
+  static const esimReplaced = 'esim.replaced';
   static const esimStatusChanged = 'esim.status_changed';
   static const esimInstalled = 'esim.installed';
   static const esimActivated = 'esim.activated';
