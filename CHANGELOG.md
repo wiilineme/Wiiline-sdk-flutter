@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.2.1
+## 0.3.0
+
+- Breaking: `esim.issue()` now requires `idempotencyKey` (sent as the
+  `Idempotency-Key` header). Use one unique key per purchase and reuse it when
+  retrying, so a purchase is never charged twice; if `order.isPending`, check the
+  order with `esim.getOrder()` before buying again.
 
 - `TopupPackage`: new `planPrice`, `serviceFee`, `planType`, `countriesIncluded`.
   `price` is the full amount charged when the package is applied.
