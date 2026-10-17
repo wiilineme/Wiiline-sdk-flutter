@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+- `TopupPackage`: new `planPrice`, `serviceFee`, `planType`, `countriesIncluded`.
+  `price` is the full amount charged when the package is applied.
+- `esim.checkTopup()` now lists upgrade/downgrade options for more eSIMs.
+
 ## 0.2.0
 
 - Added `esim.change(iccid)` - replace an eSIM with a new one (new ICCID and QR

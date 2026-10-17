@@ -90,9 +90,11 @@ class WiilineClient {
     String path, {
     Map<String, Object?>? query,
     Object? body,
+    Map<String, String>? requestHeaders,
   }) async {
     final uri = _buildUri(path, query);
     final headers = <String, String>{
+      ...?requestHeaders,
       'Accept': 'application/json',
       if (_apiKey != null && _apiKey!.isNotEmpty) 'Authorization': 'Bearer $_apiKey',
       if (body != null) 'Content-Type': 'application/json',

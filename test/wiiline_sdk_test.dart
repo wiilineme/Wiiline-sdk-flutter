@@ -11,6 +11,21 @@ WiilineClient _client(http.Response Function(http.Request) handler) =>
 
 void main() {
   group('client', () {
+    test('reuses the supplied purchase key and handles pending verification', () async {
+      final keys = <String?>[];
+      final client = _client((request) {
+        keys.add(request.headers['Idempotency-Key']);
+        return http.Response(jsonEncode({
+          'success': true, 'pending': true, 'order_uuid': 'same-order', 'message': 'Verification pending',
+        }), 202);
+      });
+      final first = await client.esim.issue(planId: 'p1', idempotencyKey: 'stable-purchase-key');
+      final retry = await client.esim.issue(planId: 'p1', idempotencyKey: 'stable-purchase-key');
+      expect(keys, ['stable-purchase-key', 'stable-purchase-key']);
+      expect(first.isPending, isTrue);
+      expect(first.esims, isEmpty);
+      expect(retry.orderUuid, first.orderUuid);
+    });
     test('sends the API key and parses plans', () async {
       late http.Request seen;
       final client = _client((r) {
@@ -45,7 +60,7 @@ void main() {
             },
             'transaction': {'amount_charged': 3.08}
           }), 200));
-      final res = await client.esim.issue(planId: 'p1');
+      final res = await client.esim.issue(planId: 'p1', idempotencyKey: 'purchase-test-1');
       expect(res.orderUuid, 'o1');
       expect(res.esims.single.status, EsimStatus.released);
       expect(res.esims.single.activateBefore, DateTime.utc(2026, 12, 12, 9, 43, 8));
@@ -65,7 +80,7 @@ void main() {
 
     test('reads retryAfter on 429', () async {
       final client = _client((_) => http.Response(jsonEncode({'success': false, 'error': 'Too many requests', 'retryAfter': 42}), 429));
-      expect(() => client.esim.issue(planId: 'p'), throwsA(isA<WiilineApiException>().having((e) => e.retryAfter, 'retryAfter', 42)));
+      expect(() => client.esim.issue(planId: 'p', idempotencyKey: 'purchase-test-2'), throwsA(isA<WiilineApiException>().having((e) => e.retryAfter, 'retryAfter', 42)));
     });
 
     test('refuses to run with no key against the public API', () {

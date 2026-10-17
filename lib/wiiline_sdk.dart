@@ -5,7 +5,7 @@
 ///
 /// final client = WiilineClient(apiKey: 'wii_...'); // server-side only
 /// final page = await client.plans.list(planType: 'country', filter: 'japan');
-/// final order = await client.esim.issue(planId: page.plans.first.planUuid);
+/// final order = await client.esim.issue(planId: page.plans.first.planUuid, idempotencyKey: 'unique-purchase-key');
 /// print(order.esims.first.qrcode);
 /// ```
 library;

@@ -235,6 +235,7 @@ class PlansPage {
 
 /// Result of `esim.issue()`.
 class IssueResult {
+  bool get isPending => raw['pending'] == true || esims.any((esim) => esim.isPending);
   IssueResult(this.raw)
       : orderUuid = _str(raw['order_uuid']) ?? '',
         message = _str(raw['message']),
@@ -282,8 +283,12 @@ class TopupPackage {
         days = _int(raw['days']),
         data = _str(raw['data']),
         price = _double(raw['price']),
+        planPrice = _double(raw['plan_price']),
+        serviceFee = _double(raw['service_fee']),
         currency = _str(raw['currency']),
         unlimited = _bool(raw['unlimited']),
+        planType = _str(raw['plan_type']),
+        countriesIncluded = _str(raw['countries_included']),
         planCode = _str(raw['plan_code']),
         isCurrentPlan = _bool(raw['is_current_plan']);
   final Map<String, dynamic> raw;
@@ -294,10 +299,16 @@ class TopupPackage {
   final int? days;
   final String? data;
 
-  /// Total you'll be charged.
+  /// Total you'll be charged ([planPrice] + [serviceFee]).
   final double? price;
+  final double? planPrice;
+  final double? serviceFee;
   final String? currency;
   final bool? unlimited;
+
+  /// `country`, `region` or `global`.
+  final String? planType;
+  final String? countriesIncluded;
   final String? planCode;
   final bool? isCurrentPlan;
 }

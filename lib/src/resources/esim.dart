@@ -15,8 +15,8 @@ class EsimResource {
   ///
   /// Pass [iccid] to top up an existing eSIM instead (supported plans only;
   /// [count] must be 1).
-  Future<IssueResult> issue({required String planId, int count = 1, String? iccid}) async {
-    final json = await _client.request('POST', '/api/esim/issue', body: {
+  Future<IssueResult> issue({required String planId, required String idempotencyKey, int count = 1, String? iccid}) async {
+    final json = await _client.request('POST', '/api/esim/issue', requestHeaders: {'Idempotency-Key': idempotencyKey}, body: {
       'plan_id': planId,
       'count': count,
       if (iccid != null) 'iccid': iccid,
@@ -31,8 +31,10 @@ class EsimResource {
     return EsimRecord(data is Map<String, dynamic> ? data : const {});
   }
 
-  /// Packages that can be applied to the eSIM. When none,
-  /// [TopupCheckResult.message] explains why (e.g. the renewal deadline passed).
+  /// Packages that can be applied to the eSIM, cheapest first; `price` is the
+  /// full amount charged. When none, [TopupCheckResult.message] explains why
+  /// (e.g. the renewal deadline passed). The message also says how to apply a
+  /// package: [renew] for most eSIMs, [issue] with `iccid` for some.
   Future<TopupCheckResult> checkTopup(String iccid) async {
     final json = await _client.request('GET', '/api/esim/topup-check', query: {'iccid': iccid});
     return TopupCheckResult(json);

@@ -53,12 +53,12 @@ final plan = page.plans.first;
 print('${plan.name}: ${plan.price} ${plan.currency} - ${plan.activationTypeDescription}');
 
 // Buy an eSIM
-final order = await client.esim.issue(planId: plan.planUuid);
-final esim = order.esims.first;
-if (esim.isPending) {
+final order = await client.esim.issue(planId: plan.planUuid, idempotencyKey: 'unique-purchase-key');
+if (order.isPending) {
   // Some networks finish later - poll getOrder() or use the order.completed webhook
   final later = await client.esim.getOrder(order.orderUuid);
 } else {
+  final esim = order.esims.first;
   print(esim.qrcode);          // render as a QR code
   print(esim.iosTapLink);      // one-tap install on iPhone
   print(esim.androidTapLink);  // one-tap install on Android
@@ -175,3 +175,5 @@ Retries reuse the same `event.id` - store it and ignore duplicates.
 ## License
 
 MIT
+
+Purchases reserve available funds before contacting the network. Persist `idempotencyKey` for each purchase and reuse it on retries. If `order.isPending` is true, check the existing order; do not create a new purchase.
